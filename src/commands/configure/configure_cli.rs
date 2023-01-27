@@ -12,7 +12,7 @@ use crate::{
             open_file, prompt_user_for_input, read_file_contents, write_to_file,
         },
         ini_config::{
-            update_profile_values, create_new_credentials_profile, create_new_config_profile
+            create_new_config_profile, create_new_credentials_profile, update_profile_values,
         },
         user::{get_config_for_profile, get_creds_for_profile},
     },
@@ -410,7 +410,7 @@ async fn add_new_profile_to_new_file(
                 Ok(_) => Ok(()),
                 Err(e) => Err(e),
             }
-        },
+        }
     }
 }
 

@@ -5,18 +5,19 @@ use crate::{
     error::CliError,
 };
 
-pub fn create_new_credentials_profile(
-    profile_name: &str,
-    credentials: Credentials,
-) -> Vec<String> {
-    return vec![format!("[{}]", profile_name), format!("token={}", credentials.token)];
+pub fn create_new_credentials_profile(profile_name: &str, credentials: Credentials) -> Vec<String> {
+    return vec![
+        format!("[{}]", profile_name),
+        format!("token={}", credentials.token),
+    ];
 }
 
-pub fn create_new_config_profile(
-    profile_name: &str,
-    config: Config,
-) -> Vec<String> {
-    return vec![format!("[{}]", profile_name), format!("cache={}", config.cache), format!("ttl={}", config.ttl)];
+pub fn create_new_config_profile(profile_name: &str, config: Config) -> Vec<String> {
+    return vec![
+        format!("[{}]", profile_name),
+        format!("cache={}", config.cache),
+        format!("ttl={}", config.ttl),
+    ];
 }
 
 pub fn update_profile_values(
@@ -194,7 +195,9 @@ fn replace_value(
 #[cfg(test)]
 mod tests {
     use crate::config::{Config, Credentials, FileTypes};
-    use crate::utils::ini_config::{update_profile_values, create_new_config_profile, create_new_credentials_profile};
+    use crate::utils::ini_config::{
+        create_new_config_profile, create_new_credentials_profile, update_profile_values,
+    };
 
     fn test_file_contents(untrimmed_file_contents: &str) -> String {
         return format!("{}\n", untrimmed_file_contents.trim());
@@ -202,22 +205,39 @@ mod tests {
 
     #[test]
     fn create_new_credentials_profile_happy_path() {
-        let profile_text = create_new_credentials_profile("default", Credentials { token: "awesome-token".to_string() }).join("\n");
-        let expected_text = test_file_contents("
+        let profile_text = create_new_credentials_profile(
+            "default",
+            Credentials {
+                token: "awesome-token".to_string(),
+            },
+        )
+        .join("\n");
+        let expected_text = test_file_contents(
+            "
 [default]
 token=awesome-token
-        ");
+        ",
+        );
         assert_eq!(expected_text.trim(), profile_text);
     }
 
     #[test]
     fn create_new_config_profile_happy_path() {
-        let profile_text = create_new_config_profile("default", Config { cache: "awesome-cache".to_string(), ttl: 90210}).join("\n");
-        let expected_text = test_file_contents("
+        let profile_text = create_new_config_profile(
+            "default",
+            Config {
+                cache: "awesome-cache".to_string(),
+                ttl: 90210,
+            },
+        )
+        .join("\n");
+        let expected_text = test_file_contents(
+            "
 [default]
 cache=awesome-cache
 ttl=90210
-        ");
+        ",
+        );
         assert_eq!(expected_text.trim(), profile_text)
     }
 
@@ -232,20 +252,34 @@ ttl=90210
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents: Vec<String> = test_file_contents("
+        let file_contents: Vec<String> = test_file_contents(
+            "
 [default]
 token=invalidtoken
-        ").split("\n").map(|line| line.to_string()).collect();
-        let creds = Credentials { token: "newtoken".to_string() };
+        ",
+        )
+        .split("\n")
+        .map(|line| line.to_string())
+        .collect();
+        let creds = Credentials {
+            token: "newtoken".to_string(),
+        };
         let file_types = FileTypes::Credentials(creds);
-        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        let result = update_profile_values(
+            profile_line_numbers,
+            matching_profile_starting_line_num,
+            file_contents,
+            file_types,
+        );
         assert!(result.is_ok());
         let new_content = result.unwrap().join("\n");
 
-        let expected_content = test_file_contents("
+        let expected_content = test_file_contents(
+            "
 [default]
 token=newtoken
-        ");
+        ",
+        );
 
         assert_eq!(expected_content, new_content);
     }
@@ -261,7 +295,8 @@ token=newtoken
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents = test_file_contents("
+        let file_contents = test_file_contents(
+            "
 [taco]
 token=invalidtoken
 
@@ -270,14 +305,26 @@ token=anotherinvalidtoken
 
 [habanero]
 token=spicytoken
-        ").split("\n").map(|line| line.to_string()).collect();
-        let creds = Credentials { token: "newtoken".to_string() };
+        ",
+        )
+        .split("\n")
+        .map(|line| line.to_string())
+        .collect();
+        let creds = Credentials {
+            token: "newtoken".to_string(),
+        };
         let file_types = FileTypes::Credentials(creds);
-        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        let result = update_profile_values(
+            profile_line_numbers,
+            matching_profile_starting_line_num,
+            file_contents,
+            file_types,
+        );
         assert!(result.is_ok());
         let new_content = result.unwrap().join("\n");
 
-        let expected_content = test_file_contents("
+        let expected_content = test_file_contents(
+            "
 [taco]
 token=invalidtoken
 
@@ -286,7 +333,8 @@ token=newtoken
 
 [habanero]
 token=spicytoken
-        ");
+        ",
+        );
 
         assert_eq!(expected_content, new_content);
     }
@@ -302,22 +350,37 @@ token=spicytoken
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents: Vec<String> = test_file_contents("
+        let file_contents: Vec<String> = test_file_contents(
+            "
 [default]
 cache=default-cache
 ttl=600
-        ").split("\n").map(|line| line.to_string()).collect();
-        let config = Config { cache: "new-cache".to_string(), ttl: 90210  };
+        ",
+        )
+        .split("\n")
+        .map(|line| line.to_string())
+        .collect();
+        let config = Config {
+            cache: "new-cache".to_string(),
+            ttl: 90210,
+        };
         let file_types = FileTypes::Config(config);
-        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        let result = update_profile_values(
+            profile_line_numbers,
+            matching_profile_starting_line_num,
+            file_contents,
+            file_types,
+        );
         assert!(result.is_ok());
         let new_content = result.unwrap().join("\n");
 
-        let expected_content = test_file_contents("
+        let expected_content = test_file_contents(
+            "
 [default]
 cache=new-cache
 ttl=90210
-        ");
+        ",
+        );
 
         assert_eq!(expected_content, new_content);
     }
@@ -333,7 +396,8 @@ ttl=90210
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents = test_file_contents("
+        let file_contents = test_file_contents(
+            "
 [taco]
 cache=yummy-cache
 ttl=600
@@ -345,14 +409,27 @@ ttl=600
 [habanero]
 cache=spicy-cache
 ttl=600
-        ").split("\n").map(|line| line.to_string()).collect();
-        let config = Config { cache: "new-cache".to_string(), ttl: 90210  };
+        ",
+        )
+        .split("\n")
+        .map(|line| line.to_string())
+        .collect();
+        let config = Config {
+            cache: "new-cache".to_string(),
+            ttl: 90210,
+        };
         let file_types = FileTypes::Config(config);
-        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        let result = update_profile_values(
+            profile_line_numbers,
+            matching_profile_starting_line_num,
+            file_contents,
+            file_types,
+        );
         assert!(result.is_ok());
         let new_content = result.unwrap().join("\n");
 
-        let expected_content = test_file_contents("
+        let expected_content = test_file_contents(
+            "
 [taco]
 cache=yummy-cache
 ttl=600
@@ -364,7 +441,8 @@ ttl=90210
 [habanero]
 cache=spicy-cache
 ttl=600
-        ");
+        ",
+        );
 
         assert_eq!(expected_content, new_content);
     }
