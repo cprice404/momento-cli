@@ -12,7 +12,7 @@ use crate::{
             open_file, prompt_user_for_input, read_file_contents, write_to_file,
         },
         ini_config::{
-            add_new_profile_to_config, add_new_profile_to_credentials, update_profile_values,
+            update_profile_values, create_new_credentials_profile, create_new_config_profile
         },
         user::{get_config_for_profile, get_creds_for_profile},
     },
@@ -397,15 +397,19 @@ async fn add_new_profile_to_new_file(
 ) -> Result<(), CliError> {
     match file_types {
         FileTypes::Credentials(cr) => {
-            match add_new_profile_to_credentials(profile_name, path, cr).await {
+            let new_profile = create_new_credentials_profile(profile_name, cr);
+            match write_to_file(path, new_profile).await {
                 Ok(_) => {}
                 Err(e) => return Err(e),
             }
             Ok(())
         }
-        FileTypes::Config(cf) => match add_new_profile_to_config(profile_name, path, cf).await {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
+        FileTypes::Config(cf) => {
+            let new_profile = create_new_config_profile(profile_name, cf);
+            match write_to_file(path, new_profile).await {
+                Ok(_) => Ok(()),
+                Err(e) => Err(e),
+            }
         },
     }
 }

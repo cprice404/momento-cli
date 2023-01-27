@@ -84,27 +84,20 @@ pub async fn write_to_file(path: &str, file_contents: Vec<String>) -> Result<(),
             })
         }
     };
+    // ensure a single trailing newline
+    let final_content = format!("{}\n", file_contents.join("\n").trim_end());
     // Write to file
-    for line in file_contents.iter() {
-        match file.write(line.as_bytes()).await {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CliError {
-                    msg: format!("failed to write to file {}, error: {}", path, e),
-                })
-            }
-        };
-    }
-    Ok(())
-}
 
-pub async fn ini_write_to_file(ini_map: Ini, path: &str) -> Result<(), CliError> {
-    match ini_map.write(path) {
-        Ok(_) => Ok(()),
-        Err(e) => Err(CliError {
-            msg: format!("failed to write to file {} with ini, error: {}", path, e),
-        }),
-    }
+    match file.write(final_content.as_bytes()).await {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(CliError {
+                msg: format!("failed to write to file {}, error: {}", path, e),
+            })
+        }
+    };
+
+    Ok(())
 }
 
 pub async fn prompt_user_for_input(

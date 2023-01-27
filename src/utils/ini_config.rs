@@ -1,41 +1,22 @@
-use configparser::ini::Ini;
 use regex::Regex;
 
 use crate::{
     config::{Config, Credentials, FileTypes},
     error::CliError,
-    utils::file::ini_write_to_file,
 };
 
-pub async fn add_new_profile_to_credentials(
+pub fn create_new_credentials_profile(
     profile_name: &str,
-    credentials_file_path: &str,
     credentials: Credentials,
-) -> Result<(), CliError> {
-    let mut ini_map = Ini::new_cs();
-    // Empty default_section for Ini instance so that "default" will be used as a section
-    ini_map.set_default_section("");
-    ini_map.set(profile_name, "token", Some(credentials.token));
-    match ini_write_to_file(ini_map, credentials_file_path).await {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
-    }
+) -> Vec<String> {
+    return vec![format!("[{}]", profile_name), format!("token={}", credentials.token)];
 }
 
-pub async fn add_new_profile_to_config(
+pub fn create_new_config_profile(
     profile_name: &str,
-    config_file_path: &str,
     config: Config,
-) -> Result<(), CliError> {
-    let mut ini_map = Ini::new_cs();
-    // Empty default_section for Ini instance so that "default" will be used as a section
-    ini_map.set_default_section("");
-    ini_map.set(profile_name, "cache", Some(config.cache));
-    ini_map.set(profile_name, "ttl", Some(config.ttl.to_string()));
-    match ini_write_to_file(ini_map, config_file_path).await {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
-    }
+) -> Vec<String> {
+    return vec![format!("[{}]", profile_name), format!("cache={}", config.cache), format!("ttl={}", config.ttl)];
 }
 
 pub fn update_profile_values(
@@ -172,7 +153,7 @@ fn replace_value(
             };
             let result = token_regex.replace(
                 updated_file_contents[index].as_str(),
-                format!("token={}\n", cr.token.as_str()),
+                format!("token={}", cr.token.as_str()),
             );
             updated_file_contents[index] = result.to_string();
             Ok(updated_file_contents)
@@ -188,7 +169,7 @@ fn replace_value(
             };
             let result = cache_regex.replace(
                 updated_file_contents[index].as_str(),
-                format!("cache={}\n", cf.cache.as_str()),
+                format!("cache={}", cf.cache.as_str()),
             );
             updated_file_contents[index] = result.to_string();
 
@@ -202,10 +183,189 @@ fn replace_value(
             };
             let result = ttl_regex.replace(
                 updated_file_contents[index].as_str(),
-                format!("ttl={}\n", cf.ttl.to_string().as_str()),
+                format!("ttl={}", cf.ttl.to_string().as_str()),
             );
             updated_file_contents[index] = result.to_string();
             Ok(updated_file_contents)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::config::{Config, Credentials, FileTypes};
+    use crate::utils::ini_config::{update_profile_values, create_new_config_profile, create_new_credentials_profile};
+
+    fn test_file_contents(untrimmed_file_contents: &str) -> String {
+        return format!("{}\n", untrimmed_file_contents.trim());
+    }
+
+    #[test]
+    fn create_new_credentials_profile_happy_path() {
+        let profile_text = create_new_credentials_profile("default", Credentials { token: "awesome-token".to_string() }).join("\n");
+        let expected_text = test_file_contents("
+[default]
+token=awesome-token
+        ");
+        assert_eq!(expected_text.trim(), profile_text);
+    }
+
+    #[test]
+    fn create_new_config_profile_happy_path() {
+        let profile_text = create_new_config_profile("default", Config { cache: "awesome-cache".to_string(), ttl: 90210}).join("\n");
+        let expected_text = test_file_contents("
+[default]
+cache=awesome-cache
+ttl=90210
+        ");
+        assert_eq!(expected_text.trim(), profile_text)
+    }
+
+    #[test]
+    fn update_profile_values_credentials_one_existing_profile() {
+        // TODO
+        // TODO these line number bits are fragile and we should refactor to prevent them from
+        // being necessary.  Will hit in a subsequent PR.
+        // TODO
+        let profile_line_numbers = vec![1];
+        let matching_profile_starting_line_num = 1;
+        // TODO
+        // TODO can we change the signature to take Vec<&str> so we don't need this map?
+        // TODO
+        let file_contents: Vec<String> = test_file_contents("
+[default]
+token=invalidtoken
+        ").split("\n").map(|line| line.to_string()).collect();
+        let creds = Credentials { token: "newtoken".to_string() };
+        let file_types = FileTypes::Credentials(creds);
+        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        assert!(result.is_ok());
+        let new_content = result.unwrap().join("\n");
+
+        let expected_content = test_file_contents("
+[default]
+token=newtoken
+        ");
+
+        assert_eq!(expected_content, new_content);
+    }
+
+    #[test]
+    fn update_profile_values_credentials_three_existing_profiles() {
+        // TODO
+        // TODO these line number bits are fragile and we should refactor to prevent them from
+        // being necessary.  Will hit in a subsequent PR.
+        // TODO
+        let profile_line_numbers = vec![1, 3, 5];
+        let matching_profile_starting_line_num = 3;
+        // TODO
+        // TODO can we change the signature to take Vec<&str> so we don't need this map?
+        // TODO
+        let file_contents = test_file_contents("
+[taco]
+token=invalidtoken
+
+[default]
+token=anotherinvalidtoken
+
+[habanero]
+token=spicytoken
+        ").split("\n").map(|line| line.to_string()).collect();
+        let creds = Credentials { token: "newtoken".to_string() };
+        let file_types = FileTypes::Credentials(creds);
+        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        assert!(result.is_ok());
+        let new_content = result.unwrap().join("\n");
+
+        let expected_content = test_file_contents("
+[taco]
+token=invalidtoken
+
+[default]
+token=newtoken
+
+[habanero]
+token=spicytoken
+        ");
+
+        assert_eq!(expected_content, new_content);
+    }
+
+    #[test]
+    fn update_profile_values_config_one_existing_profile() {
+        // TODO
+        // TODO these line number bits are fragile and we should refactor to prevent them from
+        // being necessary.  Will hit in a subsequent PR.
+        // TODO
+        let profile_line_numbers = vec![1];
+        let matching_profile_starting_line_num = 1;
+        // TODO
+        // TODO can we change the signature to take Vec<&str> so we don't need this map?
+        // TODO
+        let file_contents: Vec<String> = test_file_contents("
+[default]
+cache=default-cache
+ttl=600
+        ").split("\n").map(|line| line.to_string()).collect();
+        let config = Config { cache: "new-cache".to_string(), ttl: 90210  };
+        let file_types = FileTypes::Config(config);
+        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        assert!(result.is_ok());
+        let new_content = result.unwrap().join("\n");
+
+        let expected_content = test_file_contents("
+[default]
+cache=new-cache
+ttl=90210
+        ");
+
+        assert_eq!(expected_content, new_content);
+    }
+
+    #[test]
+    fn update_profile_values_config_three_existing_profiles() {
+        // TODO
+        // TODO these line number bits are fragile and we should refactor to prevent them from
+        // being necessary.  Will hit in a subsequent PR.
+        // TODO
+        let profile_line_numbers = vec![1, 5, 9];
+        let matching_profile_starting_line_num = 5;
+        // TODO
+        // TODO can we change the signature to take Vec<&str> so we don't need this map?
+        // TODO
+        let file_contents = test_file_contents("
+[taco]
+cache=yummy-cache
+ttl=600
+
+[default]
+cache=default-cache
+ttl=600
+
+[habanero]
+cache=spicy-cache
+ttl=600
+        ").split("\n").map(|line| line.to_string()).collect();
+        let config = Config { cache: "new-cache".to_string(), ttl: 90210  };
+        let file_types = FileTypes::Config(config);
+        let result = update_profile_values(profile_line_numbers, matching_profile_starting_line_num, file_contents, file_types);
+        assert!(result.is_ok());
+        let new_content = result.unwrap().join("\n");
+
+        let expected_content = test_file_contents("
+[taco]
+cache=yummy-cache
+ttl=600
+
+[default]
+cache=new-cache
+ttl=90210
+
+[habanero]
+cache=spicy-cache
+ttl=600
+        ");
+
+        assert_eq!(expected_content, new_content);
     }
 }

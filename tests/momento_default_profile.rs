@@ -46,7 +46,7 @@ mod tests {
     }
 
     async fn momento_cache_list_default_profile() {
-        let mut test_cache_default = std::env::var("TEST_CACHE_DEFAULT")
+        let mut test_cache_default = std::env::var("TEST_CACHE_DEFAULTXXX")
             .expect("Missing required env var TEST_CACHE_DEFAULT");
         test_cache_default.push('\n');
         let mut cmd = Command::cargo_bin("momento").unwrap();
