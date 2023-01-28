@@ -199,7 +199,7 @@ mod tests {
         create_new_config_profile, create_new_credentials_profile, update_profile_values,
     };
 
-    fn test_file_contents(untrimmed_file_contents: &str) -> String {
+    fn test_file_content(untrimmed_file_contents: &str) -> String {
         format!("{}\n", untrimmed_file_contents.trim())
     }
 
@@ -212,7 +212,7 @@ mod tests {
             },
         )
         .join("\n");
-        let expected_text = test_file_contents(
+        let expected_text = test_file_content(
             "
 [default]
 token=awesome-token
@@ -231,7 +231,7 @@ token=awesome-token
             },
         )
         .join("\n");
-        let expected_text = test_file_contents(
+        let expected_text = test_file_content(
             "
 [default]
 cache=awesome-cache
@@ -252,7 +252,7 @@ ttl=90210
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents: Vec<String> = test_file_contents(
+        let file_contents: Vec<String> = test_file_content(
             "
 [default]
 token=invalidtoken
@@ -274,7 +274,7 @@ token=invalidtoken
         assert!(result.is_ok());
         let new_content = result.expect("d'oh").join("\n");
 
-        let expected_content = test_file_contents(
+        let expected_content = test_file_content(
             "
 [default]
 token=newtoken
@@ -295,7 +295,7 @@ token=newtoken
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents = test_file_contents(
+        let file_contents = test_file_content(
             "
 [taco]
 token=invalidtoken
@@ -323,7 +323,7 @@ token=spicytoken
         assert!(result.is_ok());
         let new_content = result.expect("d'oh").join("\n");
 
-        let expected_content = test_file_contents(
+        let expected_content = test_file_content(
             "
 [taco]
 token=invalidtoken
@@ -350,7 +350,7 @@ token=spicytoken
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents: Vec<String> = test_file_contents(
+        let file_contents: Vec<String> = test_file_content(
             "
 [default]
 cache=default-cache
@@ -374,7 +374,7 @@ ttl=600
         assert!(result.is_ok());
         let new_content = result.expect("d'oh").join("\n");
 
-        let expected_content = test_file_contents(
+        let expected_content = test_file_content(
             "
 [default]
 cache=new-cache
@@ -396,7 +396,7 @@ ttl=90210
         // TODO
         // TODO can we change the signature to take Vec<&str> so we don't need this map?
         // TODO
-        let file_contents = test_file_contents(
+        let file_contents = test_file_content(
             "
 [taco]
 cache=yummy-cache
@@ -428,7 +428,7 @@ ttl=600
         assert!(result.is_ok());
         let new_content = result.expect("d'oh").join("\n");
 
-        let expected_content = test_file_contents(
+        let expected_content = test_file_content(
             "
 [taco]
 cache=yummy-cache

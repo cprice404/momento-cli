@@ -4,7 +4,7 @@ use configparser::ini::Ini;
 use crate::{
     config::{Config, Credentials},
     error::CliError,
-    utils::file::{get_config_file_path, get_credentials_file_path, read_file},
+    utils::file::{get_config_file_path, get_credentials_file_path, read_ini_file},
 };
 
 #[cfg(feature = "login")]
@@ -92,12 +92,12 @@ pub async fn get_creds_for_profile(profile: &str) -> Result<Credentials, CliErro
 
 async fn read_credentials() -> Result<Ini, CliError> {
     let path = get_credentials_file_path()?;
-    read_file(&path).await
+    read_ini_file(&path).await
 }
 
 pub async fn get_config_for_profile(profile: &str) -> Result<Config, CliError> {
     let path = get_config_file_path()?;
-    let configs = match read_file(&path).await {
+    let configs = match read_ini_file(&path).await {
         Ok(c) => c,
         Err(e) => return Err(CliError {
             msg: format!("failed to read credentials, please run 'momento configure' to setup credentials. Root cause: {e:?}")

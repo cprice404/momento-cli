@@ -39,7 +39,7 @@ pub async fn open_file(path: &str) -> Result<File, CliError> {
     }
 }
 
-pub async fn read_file(path: &str) -> Result<Ini, CliError> {
+pub async fn read_ini_file(path: &str) -> Result<Ini, CliError> {
     let mut config = Ini::new_cs();
     match config.load(path) {
         Ok(_) => Ok(config),
@@ -75,7 +75,7 @@ pub async fn create_file(path: &str) -> Result<(), CliError> {
     }
 }
 
-pub async fn write_to_file(path: &str, file_contents: Vec<String>) -> Result<(), CliError> {
+pub async fn write_to_file(path: &str, file_contents: String) -> Result<(), CliError> {
     let mut file = match fs::File::create(path).await {
         Ok(f) => f,
         Err(e) => {
@@ -84,11 +84,16 @@ pub async fn write_to_file(path: &str, file_contents: Vec<String>) -> Result<(),
             })
         }
     };
-    // ensure a single trailing newline
-    let final_content = format!("{}\n", file_contents.join("\n").trim_end());
+
+    //
+    // // ensure a single trailing newline
+    // let final_content = format!("{}\n", file_contents.join("\n").trim_end());
+    //
+
+
     // Write to file
 
-    match file.write(final_content.as_bytes()).await {
+    match file.write(file_contents.as_bytes()).await {
         Ok(_) => {}
         Err(e) => {
             return Err(CliError {
