@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[cfg(feature = "login")]
-use super::file::ini_write_to_file;
+use crate::utils::file::write_to_file;
 
 fn get_session_token(credentials: &Ini) -> Option<String> {
     let session_token = credentials.get(".momento_session", "token");
@@ -52,7 +52,13 @@ pub async fn clobber_session_token(
 ) -> Result<(), CliError> {
     let mut credentials_file = read_credentials().await?;
     set_session_token(&mut credentials_file, session_token, valid_for_seconds);
-    ini_write_to_file(credentials_file, &get_credentials_file_path()?).await?;
+    // TODO
+    // TODO this is silly, should change write_to_file to take a String or have one fn for vec and one for string
+    // TODO
+    write_to_file(
+        &get_credentials_file_path()?,
+        credentials_file.writes().split('\n').map(|line| line.to_string()).collect()
+    ).await?;
     Ok(())
 }
 

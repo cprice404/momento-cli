@@ -258,7 +258,7 @@ ttl=90210
 token=invalidtoken
         ",
         )
-        .split("\n")
+        .split('\n')
         .map(|line| line.to_string())
         .collect();
         let creds = Credentials {
@@ -307,7 +307,7 @@ token=anotherinvalidtoken
 token=spicytoken
         ",
         )
-        .split("\n")
+        .split('\n')
         .map(|line| line.to_string())
         .collect();
         let creds = Credentials {
@@ -357,7 +357,7 @@ cache=default-cache
 ttl=600
         ",
         )
-        .split("\n")
+        .split('\n')
         .map(|line| line.to_string())
         .collect();
         let config = Config {
@@ -411,7 +411,7 @@ cache=spicy-cache
 ttl=600
         ",
         )
-        .split("\n")
+        .split('\n')
         .map(|line| line.to_string())
         .collect();
         let config = Config {
