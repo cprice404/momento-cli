@@ -57,8 +57,13 @@ pub async fn clobber_session_token(
     // TODO
     write_to_file(
         &get_credentials_file_path()?,
-        credentials_file.writes().split('\n').map(|line| line.to_string()).collect()
-    ).await?;
+        credentials_file
+            .writes()
+            .split('\n')
+            .map(|line| line.to_string())
+            .collect(),
+    )
+    .await?;
     Ok(())
 }
 
@@ -80,7 +85,7 @@ pub async fn get_creds_for_profile(profile: &str) -> Result<Credentials, CliErro
         })
     }).unwrap_or_else(|| {
         Err(CliError{
-            msg: format!("failed to get credentials for profile {}, please run 'momento configure' to configure your profile", profile)
+            msg: format!("failed to get credentials for profile {profile}, please run 'momento configure' to configure your profile")
         })
     })
 }
@@ -102,14 +107,14 @@ pub async fn get_config_for_profile(profile: &str) -> Result<Config, CliError> {
     let cache_result = match configs.get(profile, "cache") {
         Some(c) => c,
         None => return Err(CliError{
-            msg: format!("failed to get cache config for profile {}, please run 'momento configure' to configure your profile", profile)
+            msg: format!("failed to get cache config for profile {profile}, please run 'momento configure' to configure your profile")
         }),
     };
 
     let ttl_result = match configs.get(profile, "ttl") {
         Some(c) => c,
         None => return Err(CliError{
-            msg: format!("failed to get ttl config for profile {}, please run 'momento configure' to configure your profile", profile)
+            msg: format!("failed to get ttl config for profile {profile}, please run 'momento configure' to configure your profile")
         }),
     };
 

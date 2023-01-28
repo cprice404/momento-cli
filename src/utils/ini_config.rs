@@ -6,18 +6,18 @@ use crate::{
 };
 
 pub fn create_new_credentials_profile(profile_name: &str, credentials: Credentials) -> Vec<String> {
-    return vec![
-        format!("[{}]", profile_name),
+    vec![
+        format!("[{profile_name}]"),
         format!("token={}", credentials.token),
-    ];
+    ]
 }
 
 pub fn create_new_config_profile(profile_name: &str, config: Config) -> Vec<String> {
-    return vec![
-        format!("[{}]", profile_name),
+    vec![
+        format!("[{profile_name}]"),
         format!("cache={}", config.cache),
         format!("ttl={}", config.ttl),
-    ];
+    ]
 }
 
 pub fn update_profile_values(
@@ -148,7 +148,7 @@ fn replace_value(
                 Ok(r) => r,
                 Err(e) => {
                     return Err(CliError {
-                        msg: format!("invalid regex expression is provided, error: {}", e),
+                        msg: format!("invalid regex expression is provided, error: {e}"),
                     })
                 }
             };
@@ -164,7 +164,7 @@ fn replace_value(
                 Ok(r) => r,
                 Err(e) => {
                     return Err(CliError {
-                        msg: format!("invalid regex expression is provided, error: {}", e),
+                        msg: format!("invalid regex expression is provided, error: {e}"),
                     })
                 }
             };
@@ -178,7 +178,7 @@ fn replace_value(
                 Ok(r) => r,
                 Err(e) => {
                     return Err(CliError {
-                        msg: format!("invalid regex expression is provided, error: {}", e),
+                        msg: format!("invalid regex expression is provided, error: {e}"),
                     })
                 }
             };
@@ -200,7 +200,7 @@ mod tests {
     };
 
     fn test_file_contents(untrimmed_file_contents: &str) -> String {
-        return format!("{}\n", untrimmed_file_contents.trim());
+        format!("{}\n", untrimmed_file_contents.trim())
     }
 
     #[test]
@@ -272,7 +272,7 @@ token=invalidtoken
             file_types,
         );
         assert!(result.is_ok());
-        let new_content = result.unwrap().join("\n");
+        let new_content = result.expect("d'oh").join("\n");
 
         let expected_content = test_file_contents(
             "
@@ -321,7 +321,7 @@ token=spicytoken
             file_types,
         );
         assert!(result.is_ok());
-        let new_content = result.unwrap().join("\n");
+        let new_content = result.expect("d'oh").join("\n");
 
         let expected_content = test_file_contents(
             "
@@ -372,7 +372,7 @@ ttl=600
             file_types,
         );
         assert!(result.is_ok());
-        let new_content = result.unwrap().join("\n");
+        let new_content = result.expect("d'oh").join("\n");
 
         let expected_content = test_file_contents(
             "
@@ -426,7 +426,7 @@ ttl=600
             file_types,
         );
         assert!(result.is_ok());
-        let new_content = result.unwrap().join("\n");
+        let new_content = result.expect("d'oh").join("\n");
 
         let expected_content = test_file_contents(
             "

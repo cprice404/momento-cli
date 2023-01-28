@@ -30,7 +30,7 @@ pub async fn configure_momento(quick: bool, profile_name: &str) -> Result<(), Cl
         Ok(_) => (),
         Err(e) => {
             return Err(CliError {
-                msg: format!("failed to create directory: {}", e),
+                msg: format!("failed to create directory: {e}"),
             })
         }
     };
@@ -133,7 +133,7 @@ async fn prompt_user_for_config(quick: bool, profile_name: &str) -> Result<Confi
             Ok(ttl) => ttl,
             Err(e) => {
                 return Err(CliError {
-                    msg: format!("failed to parse ttl: {}", e),
+                    msg: format!("failed to parse ttl: {e}"),
                 })
             }
         };
@@ -152,7 +152,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
         Ok(p) => p,
         Err(e) => {
             return Err(CliError {
-                msg: format!("failed to get file permissions {}", e),
+                msg: format!("failed to get file permissions {e}"),
             })
         }
     }
@@ -161,7 +161,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
     match fs::set_permissions(path, perms).await {
         Ok(_) => Ok(()),
         Err(e) => Err(CliError {
-            msg: format!("failed to set file permissions {}", e),
+            msg: format!("failed to set file permissions {e}"),
         }),
     }
 }
@@ -173,7 +173,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
         Ok(p) => p,
         Err(e) => {
             return Err(CliError {
-                msg: format!("failed to get file permissions {}", e),
+                msg: format!("failed to get file permissions {e}"),
             })
         }
     }
@@ -182,7 +182,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
     match fs::set_permissions(path, perms).await {
         Ok(_) => Ok(()),
         Err(e) => Err(CliError {
-            msg: format!("failed to set file permissions {}", e),
+            msg: format!("failed to set file permissions {e}"),
         }),
     }
 }
@@ -194,7 +194,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
         Ok(p) => p,
         Err(e) => {
             return Err(CliError {
-                msg: format!("failed to get file permissions {}", e),
+                msg: format!("failed to get file permissions {e}"),
             })
         }
     }
@@ -203,7 +203,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
     match fs::set_permissions(path, perms).await {
         Ok(_) => Ok(()),
         Err(e) => Err(CliError {
-            msg: format!("failed to set file permissions {}", e),
+            msg: format!("failed to set file permissions {e}"),
         }),
     }
 }
@@ -214,7 +214,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
         Ok(p) => p,
         Err(e) => {
             return Err(CliError {
-                msg: format!("failed to get file permissions {}", e),
+                msg: format!("failed to get file permissions {e}"),
             })
         }
     }
@@ -223,7 +223,7 @@ async fn set_file_read_write(path: &str) -> Result<(), CliError> {
     match fs::set_permissions(path, perms).await {
         Ok(_) => Ok(()),
         Err(e) => Err(CliError {
-            msg: format!("failed to set file permissions {}", e),
+            msg: format!("failed to set file permissions {e}"),
         }),
     }
 }
@@ -347,7 +347,7 @@ fn find_profile_start(file_contents: Vec<String>) -> Option<Vec<usize>> {
 fn does_profile_name_exist(file_contents: Vec<String>, profile_name: &str) -> bool {
     for line in file_contents.iter() {
         let trimmed_line = line.replace('\n', "");
-        if trimmed_line.eq(&format!("[{}]", profile_name)) {
+        if trimmed_line.eq(&format!("[{profile_name}]")) {
             return true;
         }
     }
@@ -360,7 +360,7 @@ fn find_existing_profile_start(file_contents: Vec<String>, profile_name: &str) -
 
     while counter < line_array_len {
         let trimmed_line = file_contents[counter].replace('\n', "");
-        if trimmed_line.eq(&format!("[{}]", profile_name)) {
+        if trimmed_line.eq(&format!("[{profile_name}]")) {
             return counter;
         }
         counter += 1;
@@ -377,12 +377,12 @@ fn push_to_file_contents(
     match file_types {
         FileTypes::Credentials(cr) => {
             updated_file_contents.push('\n'.to_string());
-            updated_file_contents.push(format!("[{}]\n", profile_name));
+            updated_file_contents.push(format!("[{profile_name}]\n"));
             updated_file_contents.push(format!("token={}", cr.token));
         }
         FileTypes::Config(cf) => {
             updated_file_contents.push('\n'.to_string());
-            updated_file_contents.push(format!("[{}]\n", profile_name));
+            updated_file_contents.push(format!("[{profile_name}]\n"));
             updated_file_contents.push(format!("cache={}\n", cf.cache));
             updated_file_contents.push(format!("ttl={}", cf.ttl));
         }
