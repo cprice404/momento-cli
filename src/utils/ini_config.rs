@@ -37,6 +37,7 @@ pub fn update_profile_values(
                     match file_types {
                         FileTypes::Credentials(ref cr) => {
                             if n == *line_num {
+                                println!("REPLACING VALUE IN ONLY EXISTING PROFILE:\n{file_contents:?}");
                                 updated_file_contents = match replace_value(
                                     file_contents.clone(),
                                     n,
@@ -87,6 +88,7 @@ pub fn update_profile_values(
                     match file_types {
                         FileTypes::Credentials(ref cr) => {
                             if n == existing_profile_line_numbers[counter] {
+                                println!("REPLACING VALUE IN EXISTING PROFILE:\n{file_contents:?}");
                                 updated_file_contents = match replace_value(
                                     file_contents.clone(),
                                     n,
@@ -132,6 +134,7 @@ pub fn update_profile_values(
             }
         }
     }
+    println!("UPDATED FILE CONTENTS:\n{updated_file_contents:?}");
     Ok(updated_file_contents)
 }
 

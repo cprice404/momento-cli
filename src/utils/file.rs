@@ -57,7 +57,7 @@ pub async fn read_file_contents(file: File) -> Result<Vec<String>, CliError> {
     while let Some(line) = contents.next_line().await.map_err(|e| CliError {
         msg: format!("could not read next line: {e:?}"),
     })? {
-        file_contents.push(format!("{line}\n"));
+        file_contents.push(format!("{line}"));
     }
     Ok(file_contents)
 }
